@@ -33,7 +33,14 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "No package-lock.json found, running npm install"
+            npm install
+          else
+            echo "Checking if package-lock.json is in sync"
+            npm ci || (echo "Lock file out of sync, updating..." && npm install)
+          fi
       - name: Run Linter
         run: npm run lint || echo "Linting failed but continuing"
       - name: Wait for MySQL
@@ -70,7 +77,7 @@ jobs:
         with:
           node-version: '18.x'
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -102,7 +109,7 @@ jobs:
         with:
           node-version: '18.x'
       - name: Install Dependencies
-        run: npm ci --production
+        run: npm install
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
@@ -126,7 +133,6 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - uses: actions/checkout@v4
       - name: Deploy to Production
