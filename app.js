@@ -34,4 +34,7 @@ app.use('/api/v1/user/document', userdocumentRoutes);
 app.use('/api/v1/members', memberRoutes);
 app.use('/api/v1/member/document', memberDocumentRoutes);
 
+app.get('/', (req, res) => {
+  res.status(200).send('Hello World');
+});
 module.exports = app;
