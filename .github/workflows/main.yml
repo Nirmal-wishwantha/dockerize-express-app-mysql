@@ -13,8 +13,8 @@ jobs:
       db:
         image: mysql:8
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
+          MYSQL_ROOT_PASSWORD: acpt
+          MYSQL_DATABASE: wemixt
         ports:
           - 3306:3306
         options: >-
@@ -41,14 +41,14 @@ jobs:
         env:
           DB_HOST: db
           DB_USER: root
-          DB_PASSWORD: root
-          DB_NAME: test_db
+          DB_PASSWORD: acpt
+          DB_NAME: wemixt
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # @v3 වෙනුවට @v4
         with:
           name: test-results
-          path: ./test-results.xml  # Matches jest-junit output
+          path: ./test-results.xml
 
   security-scan:
     needs: test
@@ -112,7 +112,7 @@ jobs:
       - name: Deploy to Production
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
+          host: ${{ secrets.DOCKER_HUB_USERNAME }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
@@ -129,7 +129,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             sleep 10
-            curl -f http://<deployed-ip>:3000/health || exit 1
+            curl -f http://localhost:3000/health || exit 1
 
   cleanup:
     needs: deploy
